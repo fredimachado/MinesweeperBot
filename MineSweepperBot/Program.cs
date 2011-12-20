@@ -38,6 +38,19 @@ namespace MineSweepperBot
             Console.WriteLine(width);
             Console.WriteLine(height);
 
+            uint result = 0;
+            for (uint w = 1; w <= width; w++)
+            {
+                for (uint h = 1; h <= height; h++)
+                {
+                    byte cellValue = Helper.MineProcess.ReadByte(0x1005340 + (h << 5) + w);
+                    if (cellValue == 0x0F) // No mine
+                        Console.WriteLine(w + "," + h + " is safe.");
+                    else
+                        Console.WriteLine(w + "," + h + " WILL EXPLODE!!");
+                }
+            }
+
             Helper.MineProcess.Close();
         }
     }
