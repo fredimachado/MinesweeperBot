@@ -20,6 +20,30 @@ namespace MineSweepperBot
         {
             mineProcess = new BlackMagic();
         }
+
+        public static uint ClickBox(uint x, uint y)
+        {
+            uint codeCave = MineProcess.AllocateMemory();
+            uint result = 0;
+
+            Fasm.ManagedFasm fasm = new Fasm.ManagedFasm(MineProcess.ProcessHandle);
+            fasm.AddLine("push {0}", y);
+            fasm.AddLine("push {0}", x);
+            fasm.AddLine("mov eax, 0x1003512");
+            fasm.AddLine("call eax");
+            fasm.AddLine("retn");
+
+            try
+            {
+                result = fasm.InjectAndExecute(codeCave);
+            }
+            finally
+            {
+                MineProcess.FreeMemory(codeCave);
+            }
+
+            return result;
+        }
     }
 
     class Program
@@ -45,9 +69,7 @@ namespace MineSweepperBot
                 {
                     byte cellValue = Helper.MineProcess.ReadByte(0x1005340 + (h << 5) + w);
                     if (cellValue == 0x0F) // No mine
-                        Console.WriteLine(w + "," + h + " is safe.");
-                    else
-                        Console.WriteLine(w + "," + h + " WILL EXPLODE!!");
+                        result = Helper.ClickBox(w, h);
                 }
             }
 
